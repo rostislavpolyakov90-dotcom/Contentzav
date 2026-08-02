@@ -39,8 +39,13 @@ def main():
     if not KEYWORDS_FILE.exists():
         sys.exit(f"Создайте {KEYWORDS_FILE} — по одному ключу в строке")
 
-    keywords = [k.strip() for k in KEYWORDS_FILE.read_text(encoding="utf-8").splitlines()
-                if k.strip() and not k.startswith("#")]
+    # Комментарий — строка "# что-то" (# и пробел). Тег без пробела ("#психолог") — ключевое слово.
+    keywords = []
+    for raw in KEYWORDS_FILE.read_text(encoding="utf-8").splitlines():
+        line = raw.strip()
+        if not line or line == "#" or line.startswith("# "):
+            continue
+        keywords.append(line)
 
     out_dir = ROOT / "trends" / "raw" / datetime.now().strftime("%Y-%m-%d")
     out_dir.mkdir(parents=True, exist_ok=True)
